@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Penjualan 2024</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h1 class="text-xl font-bold text-blue-700 tracking-tight">📊 Dashboard Penjualan 2024</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Analitik real-time · Data per transaksi</p>
+      </div>
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-xs text-gray-500 font-medium">Bulan</label>
+          <select id="filterMonth" class="filter-select">
+            <option value="all">Semua Bulan</option>
+            <option value="1">Januari</option><option value="2">Februari</option>
+            <option value="3">Maret</option><option value="4">April</option>
+            <option value="5">Mei</option><option value="6">Juni</option>
+            <option value="7">Juli</option><option value="8">Agustus</option>
+            <option value="9">September</option><option value="10">Oktober</option>
+            <option value="11">November</option><option value="12">Desember</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-xs text-gray-500 font-medium">Region</label>
+          <select id="filterRegion" class="filter-select">
+            <option value="all">Semua Region</option>
+            <option value="Jakarta">Jakarta</option>
+            <option value="Surabaya">Surabaya</option>
+            <option value="Bandung">Bandung</option>
+            <option value="Medan">Medan</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-xs text-gray-500 font-medium">Kategori</label>
+          <select id="filterCategory" class="filter-select">
+            <option value="all">Semua Kategori</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Furniture">Furniture</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-xs text-gray-500 font-medium">Tipe Pelanggan</label>
+          <select id="filterCustomer" class="filter-select">
+            <option value="all">Semua</option>
+            <option value="B2B">B2B</option>
+            <option value="B2C">B2C</option>
+          </select>
+        </div>
+        <button id="resetFilters" class="mt-4 px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition font-medium">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-screen-2xl mx-auto px-6 py-6 space-y-6">
+
+    <!-- KPI Cards -->
+    <section>
+      <h2 class="section-title">Key Performance Indicators</h2>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="kpi-card border-blue-500">
+          <p class="kpi-label">Total Revenue</p>
+          <p id="kpiRevenue" class="kpi-value text-blue-600">—</p>
+          <p id="kpiRevenueSub" class="kpi-sub">dari seluruh transaksi</p>
+        </div>
+        <div class="kpi-card border-green-500">
+          <p class="kpi-label">Total Transaksi</p>
+          <p id="kpiTx" class="kpi-value text-green-600">—</p>
+          <p id="kpiTxSub" class="kpi-sub">transaksi tercatat</p>
+        </div>
+        <div class="kpi-card border-purple-500">
+          <p class="kpi-label">Total Qty Terjual</p>
+          <p id="kpiQty" class="kpi-value text-purple-600">—</p>
+          <p id="kpiQtySub" class="kpi-sub">unit produk</p>
+        </div>
+        <div class="kpi-card border-orange-500">
+          <p class="kpi-label">Avg. Diskon</p>
+          <p id="kpiDiscount" class="kpi-value text-orange-600">—</p>
+          <p id="kpiDiscountSub" class="kpi-sub">rata-rata per transaksi</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 1: Sales Trend + Revenue per Region -->
+    <section>
+      <h2 class="section-title">Tren & Distribusi Revenue</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="chart-card lg:col-span-2">
+          <h3 class="chart-title">Sales Trend (Bulanan)</h3>
+          <div class="chart-wrap-tall"><canvas id="chartTrend"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Revenue per Region</h3>
+          <div class="chart-wrap"><canvas id="chartRegion"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 2: Category Revenue + Salesperson -->
+    <section>
+      <h2 class="section-title">Kategori & Tim Penjualan</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="chart-card">
+          <h3 class="chart-title">Revenue per Kategori Produk</h3>
+          <div class="chart-wrap"><canvas id="chartCategory"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Sales per Sales Representative</h3>
+          <div class="chart-wrap"><canvas id="chartSalesperson"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 3: Customer Type + Payment + Channel -->
+    <section>
+      <h2 class="section-title">Segmentasi & Kanal</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="chart-card">
+          <h3 class="chart-title">Customer Type Distribution</h3>
+          <div class="chart-wrap"><canvas id="chartCustomer"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Payment Method Usage</h3>
+          <div class="chart-wrap"><canvas id="chartPayment"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Sales Channel Distribution</h3>
+          <div class="chart-wrap"><canvas id="chartChannel"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 4: Scatter + Top 10 + Qty per Category -->
+    <section>
+      <h2 class="section-title">Analisis Lanjutan</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="chart-card">
+          <h3 class="chart-title">Discount vs Revenue (Scatter)</h3>
+          <div class="chart-wrap"><canvas id="chartScatter"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Top 10 Transaksi Tertinggi</h3>
+          <div class="chart-wrap-tall"><canvas id="chartTop10"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Qty Terjual per Kategori</h3>
+          <div class="chart-wrap"><canvas id="chartQtyCategory"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-400 pb-6 pt-2 border-t border-gray-200">
+      Dashboard Penjualan 2024 · Built with HTML, Tailwind CSS, Chart.js · Powered by IBM Bob
+    </footer>
+
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
